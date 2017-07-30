@@ -37,13 +37,23 @@ class StreamLogGuiMain : Application() {
         val scene = Scene(pane, 600.0, 400.0)
 
         eventStartButton.setOnMouseClicked {
-            val filePath: String = readFilePath.text ?: ""
-            if (!filePath.isEmpty()) {
-                eventStartButton.text = "Started."
 
-                readThread = ReadFileThread(filePath)
-                readThread?.start()
+            val threadIsReading = readThread?.isReading ?: false
+                    && readThread?.isAlive ?: false
+
+            if (threadIsReading) {
+                readThread?.isReading = false
+            } else {
+                logConsole.text = ""
+                val filePath: String = readFilePath.text ?: ""
+                if (!filePath.isEmpty()) {
+                    eventStartButton.text = "Started."
+
+                    readThread = ReadFileThread(filePath)
+                    readThread?.start()
+                }
             }
+
         }
         primaryStage.scene = scene
         primaryStage.show()
@@ -53,15 +63,25 @@ class StreamLogGuiMain : Application() {
         timer.schedule(object : TimerTask() {
             override fun run() {
                 Platform.runLater({
-                    if (readThread?.hasUpdate() ?: false) {
-                        val list = readThread?.getUpdated()
-                        var text:String = logConsole.text.toString()
-                        if (list != null) {
-                            for (line:String in list) {
-                                text += line + "\n"
+                    if (readThread != null) {
+                        val threadIsReading = readThread?.isReading ?: false
+                                && readThread?.isAlive ?: false
+                        if (threadIsReading) {
+                            if (readThread?.hasUpdate() ?: false) {
+                                val list = readThread?.getUpdated()
+                                var text:String = logConsole.text.toString()
+                                if (list != null) {
+                                    for (line:String in list) {
+                                        text += line + "\n"
+                                    }
+                                }
+                                logConsole.text = text
                             }
+                        } else {
+                            readThread?.isReading = false
+                            readThread = null
+                            eventStartButton.text = "Click"
                         }
-                        logConsole.text = text
                     }
                 })
             }

@@ -8,10 +8,13 @@ import java.util.concurrent.TimeUnit
 
 class ReadFileThread(var filePath: String) : Thread() {
     private var updatedLines = mutableListOf<String>()
+    var isReading = true
 
     override fun run() {
+        println("Started")
+        isReading = true
         val br = BufferedReader(FileReader(File(filePath)))
-        while(true) {
+        while(isReading) {
             val str: String? = br.readLine()
             if (str == null) {
                 TimeUnit.MILLISECONDS.sleep(500);
@@ -21,6 +24,7 @@ class ReadFileThread(var filePath: String) : Thread() {
                 }
             }
         }
+        println("Finished")
     }
 
     fun hasUpdate(): Boolean{
