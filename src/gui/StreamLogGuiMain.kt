@@ -12,24 +12,21 @@ import java.util.Timer
 
 
 class StreamLogGuiMain : Application() {
-    private var readFilePath: TextField? = null
-    private var eventStartButton: Button? = null
+    private var readFilePath: TextField = TextField("")
+    private var eventStartButton: Button = Button("Click")
     private var readThread: ReadFileThread? = null
-    private var logConsole: TextArea? = null
+    private var logConsole: TextArea = TextArea("")
     val period = 100L
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = "Log Read"
-        readFilePath = TextField("")
-        eventStartButton = Button("Click")
-        logConsole = TextArea("")
 
         val args: MutableList<String> = parameters.raw
 
         if (args.size > 0) {
-            readFilePath?.text = args[0]
+            readFilePath.text = args[0]
         } else {
-            readFilePath?.text = ""
+            readFilePath.text = ""
         }
 
         val pane = BorderPane()
@@ -39,10 +36,10 @@ class StreamLogGuiMain : Application() {
         pane.bottom = eventStartButton
         val scene = Scene(pane, 600.0, 400.0)
 
-        eventStartButton?.setOnMouseClicked {
-            val filePath: String = readFilePath?.text ?: ""
+        eventStartButton.setOnMouseClicked {
+            val filePath: String = readFilePath.text ?: ""
             if (!filePath.isEmpty()) {
-                eventStartButton?.text = "Started."
+                eventStartButton.text = "Started."
 
                 readThread = ReadFileThread(filePath)
                 readThread?.start()
@@ -58,13 +55,13 @@ class StreamLogGuiMain : Application() {
                 Platform.runLater({
                     if (readThread?.hasUpdate() ?: false) {
                         val list = readThread?.getUpdated()
-                        var text:String = logConsole?.text.toString()
+                        var text:String = logConsole.text.toString()
                         if (list != null) {
                             for (line:String in list) {
                                 text += line + "\n"
                             }
                         }
-                        logConsole?.text = text
+                        logConsole.text = text
                     }
                 })
             }
