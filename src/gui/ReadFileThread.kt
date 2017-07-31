@@ -12,13 +12,12 @@ class ReadFileThread(var filePath: String) : Thread() {
     val InitLines = 5
 
     override fun run() {
-        var lineBuffer = arrayOfNulls<String>(InitLines)
+        val lineBuffer = arrayOfNulls<String>(InitLines)
         var arrayAmount:Long = 0
 
         println("Started")
         isReading = true
         val br = BufferedReader(FileReader(File(filePath)))
-
 
         while(true) {
             val line: String = br.readLine() ?: break
@@ -31,7 +30,6 @@ class ReadFileThread(var filePath: String) : Thread() {
                     val line = lineBuffer[i.toInt()]
                     if (line != null) {
                         updatedLines.add(line)
-
                     }
                 }
             }
