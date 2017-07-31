@@ -13,7 +13,8 @@ import java.util.Timer
 
 class StreamLogGuiMain : Application() {
     private var readFilePath: TextField = TextField("")
-    private var eventStartButton: Button = Button("Click")
+    private var eventStartButton: Button = Button("Start")
+    private var clearButton: Button = Button("Clear")
     private var readThread: ReadFileThread? = null
     private var logConsole: TextArea = TextArea("")
     val period = 100L
@@ -22,22 +23,19 @@ class StreamLogGuiMain : Application() {
         primaryStage.title = "Log Read"
 
         val args: MutableList<String> = parameters.raw
-
-        if (args.size > 0) {
-            readFilePath.text = args[0]
-        } else {
-            readFilePath.text = ""
-        }
+        readFilePath.text = if(args.size > 0) args[0] else ""
 
         val pane = BorderPane()
+        val buttonPane = BorderPane()
+        buttonPane.left = eventStartButton
+        buttonPane.right = clearButton
 
         pane.top = readFilePath
         pane.center = logConsole
-        pane.bottom = eventStartButton
+        pane.bottom = buttonPane
         val scene = Scene(pane, 600.0, 400.0)
 
         eventStartButton.setOnMouseClicked {
-
             val threadIsReading = readThread?.isReading ?: false
                     && readThread?.isAlive ?: false
 
@@ -53,7 +51,9 @@ class StreamLogGuiMain : Application() {
                     readThread?.start()
                 }
             }
-
+        }
+        clearButton.setOnMouseClicked {
+            logConsole.text = ""
         }
         primaryStage.scene = scene
         primaryStage.show()
