@@ -69,13 +69,12 @@ class StreamLogGuiMain : Application() {
                         if (threadIsReading) {
                             if (readThread?.hasUpdate() ?: false) {
                                 val list = readThread?.getUpdated()
-                                var text:String = logConsole.text.toString()
                                 if (list != null) {
                                     for (line:String in list) {
-                                        text += line + "\n"
+                                        logConsole.appendText(line)
+                                        logConsole.appendText("\n")
                                     }
                                 }
-                                logConsole.text = text
                             }
                         } else {
                             readThread?.isReading = false
