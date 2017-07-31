@@ -34,6 +34,7 @@ class StreamLogGuiMain : Application() {
         pane.center = logConsole
         pane.bottom = buttonPane
         val scene = Scene(pane, 600.0, 400.0)
+        logConsole.isWrapText = true
 
         eventStartButton.setOnMouseClicked {
             val threadIsReading = readThread?.isReading ?: false
