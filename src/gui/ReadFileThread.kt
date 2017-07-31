@@ -9,18 +9,51 @@ import java.util.concurrent.TimeUnit
 class ReadFileThread(var filePath: String) : Thread() {
     private var updatedLines = mutableListOf<String>()
     var isReading = true
+    val InitLines = 5
 
     override fun run() {
+        var lineBuffer = arrayOfNulls<String>(InitLines)
+        var arrayAmount:Long = 0
+
         println("Started")
         isReading = true
         val br = BufferedReader(FileReader(File(filePath)))
+
+
+        while(true) {
+            val line: String = br.readLine() ?: break
+            lineBuffer[(arrayAmount % InitLines).toInt()] = line
+            arrayAmount++
+        }
+        if(arrayAmount < InitLines) {
+            synchronized(updatedLines) {
+                for (i in (0 .. arrayAmount - 1)) {
+                    val line = lineBuffer[i.toInt()]
+                    if (line != null) {
+                        updatedLines.add(line)
+
+                    }
+                }
+            }
+        } else {
+            synchronized(updatedLines) {
+                for (i in ((arrayAmount - InitLines) .. arrayAmount - 1)) {
+                    val index = (i % InitLines).toInt()
+                    val line = lineBuffer[index]
+                    if (line != null) {
+                        updatedLines.add(line)
+                    }
+                }
+            }
+        }
+
         while(isReading) {
-            val str: String? = br.readLine()
-            if (str == null) {
+            val line: String? = br.readLine()
+            if (line == null) {
                 TimeUnit.MILLISECONDS.sleep(500);
             } else {
                 synchronized(updatedLines) {
-                    updatedLines.add(str)
+                    updatedLines.add(line)
                 }
             }
         }
