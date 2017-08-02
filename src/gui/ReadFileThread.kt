@@ -24,18 +24,16 @@ class ReadFileThread(var filePath: String) : Thread() {
             lineBuffer[(arrayAmount % InitLines).toInt()] = line
             arrayAmount++
         }
-        if(arrayAmount < InitLines) {
-            synchronized(updatedLines) {
-                for (i in (0 .. arrayAmount - 1)) {
+        synchronized(updatedLines) {
+            if (arrayAmount < InitLines) {
+                for (i in (0..arrayAmount - 1)) {
                     val line = lineBuffer[i.toInt()]
                     if (line != null) {
                         updatedLines.add(line)
                     }
                 }
-            }
-        } else {
-            synchronized(updatedLines) {
-                for (i in ((arrayAmount - InitLines) .. arrayAmount - 1)) {
+            } else {
+                for (i in ((arrayAmount - InitLines)..arrayAmount - 1)) {
                     val index = (i % InitLines).toInt()
                     val line = lineBuffer[index]
                     if (line != null) {
