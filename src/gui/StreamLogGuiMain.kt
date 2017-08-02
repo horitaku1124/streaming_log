@@ -1,3 +1,5 @@
+package gui
+
 import gui.ReadFileThread
 import javafx.application.Application
 import javafx.scene.Scene
