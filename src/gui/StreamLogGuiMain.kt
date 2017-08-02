@@ -2,19 +2,21 @@ package gui
 
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
+import javafx.stage.WindowEvent
 import java.util.*
-
 
 class StreamLogGuiMain : Application() {
     private var readFilePath: TextField = TextField("")
     private var eventStartButton: Button = Button("Start")
     private var clearButton: Button = Button("Clear")
+    private var closeButton: Button = Button("Close")
     private var readThread: ReadFileThread? = null
     private var logConsole: TextArea = TextArea("")
     val period = 100L
@@ -28,7 +30,8 @@ class StreamLogGuiMain : Application() {
         val pane = BorderPane()
         val buttonPane = BorderPane()
         buttonPane.left = eventStartButton
-        buttonPane.right = clearButton
+        buttonPane.center = clearButton
+        buttonPane.right = closeButton
 
         pane.top = readFilePath
         pane.center = logConsole
@@ -55,6 +58,13 @@ class StreamLogGuiMain : Application() {
         }
         clearButton.setOnMouseClicked {
             logConsole.text = ""
+        }
+        closeButton.setOnMouseClicked {
+            if (readThread != null) {
+                readThread?.isReading = false
+            }
+            Platform.exit()
+            System.exit(0)
         }
         primaryStage.scene = scene
         primaryStage.show()
