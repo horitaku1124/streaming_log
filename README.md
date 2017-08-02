@@ -1,2 +1,8 @@
 # streaming_log
-keep read log file while file is updete
+keep read log file while file is update
+
+# build
+```$bash
+kotlinc -cp src/:out/:. src/gui/*.kt -d StreamLog.jar
+kotlin -cp StreamLog.jar:$JAVA_HOME/lib/ext/jfxrt.jar gui.StreamLogGuiMainKt
+```
