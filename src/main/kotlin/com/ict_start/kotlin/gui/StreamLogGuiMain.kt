@@ -1,6 +1,5 @@
-package com.ict_start.kotlin
+package com.ict_start.kotlin.gui
 
-import com.ict_start.kotlin.gui.ReadFileThread
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene

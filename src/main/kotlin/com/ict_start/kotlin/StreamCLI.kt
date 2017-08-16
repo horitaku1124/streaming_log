@@ -1,4 +1,4 @@
-package com.ict_start.kotlin.gui
+package com.ict_start.kotlin
 
 
 import java.io.BufferedReader
