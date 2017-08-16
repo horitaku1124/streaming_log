@@ -2,6 +2,9 @@ package com.ict_start.kotlin.gui
 
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.beans.property.StringProperty
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
@@ -36,6 +39,13 @@ class StreamLogGuiMain : Application() {
     pane.bottom = buttonPane
     val scene = Scene(pane, 600.0, 400.0)
     logConsole.isWrapText = true
+
+    readFilePath.textProperty().addListener(ChangeListener<String>({ obs, old, newText ->
+      readFilePath.text = newText
+        .replace("\\", "/")
+        .replace("^[ \t\r\n]".toRegex(), "")
+        .replace("[ \t\r\n]$".toRegex(), "")
+    }));
 
     eventStartButton.setOnMouseClicked {
       val threadIsReading = readThread?.isReading ?: false
