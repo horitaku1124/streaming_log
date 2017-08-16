@@ -1,5 +1,5 @@
 # streaming_log
-keep read log file while file is update
+keep read log file while file is update with kotlin
 
 # build
 ```$bash
