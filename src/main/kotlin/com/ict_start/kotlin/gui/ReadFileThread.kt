@@ -1,15 +1,12 @@
 package com.ict_start.kotlin.gui
 
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileReader
-import java.lang.Thread
 import java.util.concurrent.TimeUnit
 
 class ReadFileThread(var filePath: String) : Thread() {
   private var updatedLines = mutableListOf<String>()
   var isReading = true
-  val InitLines = 5
+  private val InitLines = 5
 
   override fun run() {
     val lineBuffer = arrayOfNulls<String>(InitLines)
@@ -17,7 +14,7 @@ class ReadFileThread(var filePath: String) : Thread() {
 
     println("Started")
     isReading = true
-    val br = BufferedReader(FileReader(File(filePath)))
+    val br = File(filePath).inputStream().bufferedReader(Charsets.UTF_8)
 
     while(true) {
       val line: String = br.readLine() ?: break
@@ -26,14 +23,14 @@ class ReadFileThread(var filePath: String) : Thread() {
     }
     synchronized(updatedLines) {
       if (arrayAmount < InitLines) {
-        for (i in (0..arrayAmount - 1)) {
+        for (i in (0 until arrayAmount)) {
           val line = lineBuffer[i.toInt()]
           if (line != null) {
             updatedLines.add(line)
           }
         }
       } else {
-        for (i in ((arrayAmount - InitLines)..arrayAmount - 1)) {
+        for (i in ((arrayAmount - InitLines) until arrayAmount)) {
           val index = (i % InitLines).toInt()
           val line = lineBuffer[index]
           if (line != null) {
