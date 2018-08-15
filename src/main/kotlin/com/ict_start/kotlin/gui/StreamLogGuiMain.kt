@@ -38,12 +38,12 @@ class StreamLogGuiMain : Application() {
     val scene = Scene(pane, 600.0, 400.0)
     logConsole.isWrapText = true
 
-    readFilePath.textProperty().addListener({ obs, old, newText ->
+    readFilePath.textProperty().addListener { obs, old, newText ->
       readFilePath.text = newText
-        .replace("\\", "/")
-        .replace("^[ \t\r\n]".toRegex(), "")
-        .replace("[ \t\r\n]$".toRegex(), "")
-    });
+              .replace("\\", "/")
+              .replace("^[ \t\r\n]".toRegex(), "")
+              .replace("[ \t\r\n]$".toRegex(), "")
+    };
 
     eventStartButton.setOnMouseClicked {
       val threadIsReading = readThread?.isReading ?: false
@@ -79,7 +79,7 @@ class StreamLogGuiMain : Application() {
 
     timer.schedule(object : TimerTask() {
       override fun run() {
-        Platform.runLater({
+        Platform.runLater {
           if (readThread != null) {
             val threadIsReading = readThread?.isReading ?: false
                     && readThread?.isAlive ?: false
@@ -99,7 +99,7 @@ class StreamLogGuiMain : Application() {
               eventStartButton.text = "Click"
             }
           }
-        })
+        }
       }
     }, 0, period)
   }

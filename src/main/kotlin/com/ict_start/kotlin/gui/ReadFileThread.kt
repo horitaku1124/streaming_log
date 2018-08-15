@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit
 class ReadFileThread(var filePath: String) : Thread() {
   private var updatedLines = mutableListOf<String>()
   var isReading = true
-  private val InitLines = 5
+  private val initLines = 5
 
   override fun run() {
-    val lineBuffer = arrayOfNulls<String>(InitLines)
+    val lineBuffer = arrayOfNulls<String>(initLines)
     var arrayAmount:Long = 0
 
     println("Started")
@@ -18,11 +18,11 @@ class ReadFileThread(var filePath: String) : Thread() {
 
     while(true) {
       val line: String = br.readLine() ?: break
-      lineBuffer[(arrayAmount % InitLines).toInt()] = line
+      lineBuffer[(arrayAmount % initLines).toInt()] = line
       arrayAmount++
     }
     synchronized(updatedLines) {
-      if (arrayAmount < InitLines) {
+      if (arrayAmount < initLines) {
         for (i in (0 until arrayAmount)) {
           val line = lineBuffer[i.toInt()]
           if (line != null) {
@@ -30,8 +30,8 @@ class ReadFileThread(var filePath: String) : Thread() {
           }
         }
       } else {
-        for (i in ((arrayAmount - InitLines) until arrayAmount)) {
-          val index = (i % InitLines).toInt()
+        for (i in ((arrayAmount - initLines) until arrayAmount)) {
+          val index = (i % initLines).toInt()
           val line = lineBuffer[index]
           if (line != null) {
             updatedLines.add(line)
