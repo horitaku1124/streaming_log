@@ -2,7 +2,6 @@ package com.ict_start.kotlin.gui
 
 import javafx.application.Application
 import javafx.application.Platform
-import javafx.beans.value.ChangeListener
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
@@ -10,15 +9,19 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
 import java.util.*
+import javafx.stage.FileChooser
+
+
 
 class StreamLogGuiMain : Application() {
   private var readFilePath: TextField = TextField("")
   private var eventStartButton: Button = Button("Start")
+  private var fileOpenButton: Button = Button("Open")
   private var clearButton: Button = Button("Clear")
   private var closeButton: Button = Button("Close")
   private var readThread: ReadFileThread? = null
   private var logConsole: TextArea = TextArea("")
-  val period = 100L
+  private val period = 100L
 
   override fun start(primaryStage: Stage) {
     primaryStage.title = "Log Read"
@@ -26,24 +29,36 @@ class StreamLogGuiMain : Application() {
     val args: MutableList<String> = parameters.raw
     readFilePath.text = if(args.size > 0) args[0] else ""
 
+    val topPane = BorderPane()
+    topPane.center = readFilePath
+    topPane.right = fileOpenButton
     val pane = BorderPane()
     val buttonPane = BorderPane()
     buttonPane.left = eventStartButton
     buttonPane.center = clearButton
     buttonPane.right = closeButton
 
-    pane.top = readFilePath
+    pane.top = topPane
     pane.center = logConsole
     pane.bottom = buttonPane
     val scene = Scene(pane, 600.0, 400.0)
     logConsole.isWrapText = true
 
-    readFilePath.textProperty().addListener { obs, old, newText ->
+    val fileChooser = FileChooser()
+
+    readFilePath.textProperty().addListener { _, _, newText ->
       readFilePath.text = newText
               .replace("\\", "/")
               .replace("^[ \t\r\n]".toRegex(), "")
               .replace("[ \t\r\n]$".toRegex(), "")
-    };
+    }
+
+    fileOpenButton.setOnMouseClicked {
+      val file = fileChooser.showOpenDialog(primaryStage);
+      if (file != null) {
+        readFilePath.text = file.absolutePath
+      }
+    }
 
     eventStartButton.setOnMouseClicked {
       val threadIsReading = readThread?.isReading ?: false
