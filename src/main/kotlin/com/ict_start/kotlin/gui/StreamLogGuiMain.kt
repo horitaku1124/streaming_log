@@ -1,5 +1,6 @@
 package com.ict_start.kotlin.gui
 
+import com.ict_start.kotlin.db.DBManager
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -10,10 +11,16 @@ import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
 import java.util.*
 import javafx.stage.FileChooser
-
+import java.sql.Connection
+import javafx.scene.control.ComboBox
+import javafx.collections.FXCollections
+import java.sql.PreparedStatement
+import java.sql.Statement
+import kotlin.collections.ArrayList
 
 
 class StreamLogGuiMain : Application() {
+  private var historyButton: Button = Button("Hist")
   private var readFilePath: TextField = TextField("")
   private var eventStartButton: Button = Button("Start")
   private var fileOpenButton: Button = Button("Open")
@@ -22,14 +29,24 @@ class StreamLogGuiMain : Application() {
   private var readThread: ReadFileThread? = null
   private var logConsole: TextArea = TextArea("")
   private val period = 100L
+  private var conn: Connection? = null
 
   override fun start(primaryStage: Stage) {
+    val db = DBManager("test.db")
+    conn = db.createConnection()
     primaryStage.title = "Log Read"
+
+    var smt: Statement = conn?.createStatement() ?: throw RuntimeException("failed to create");
+
+//    smt.executeUpdate("DROP TABLE IF EXISTS `history`")
+    smt.executeUpdate("CREATE TABLE IF NOT EXISTS `history` (id integer primary key, path text unique)")
+    smt.close()
 
     val args: MutableList<String> = parameters.raw
     readFilePath.text = if(args.size > 0) args[0] else ""
 
     val topPane = BorderPane()
+    topPane.left = historyButton
     topPane.center = readFilePath
     topPane.right = fileOpenButton
     val pane = BorderPane()
@@ -45,6 +62,31 @@ class StreamLogGuiMain : Application() {
     logConsole.isWrapText = true
 
     val fileChooser = FileChooser()
+    historyButton.setOnMouseClicked {
+
+      var sql = "select path from `history`"
+      var smt: Statement = conn?.createStatement() ?: throw RuntimeException("failed to create")
+      var rs = smt.executeQuery(sql)
+      var history = ArrayList<String>()
+      while (rs.next()) {
+        history.add(rs.getString(1))
+      }
+
+      val options = FXCollections.observableArrayList(history)
+      val comboBox = ComboBox(options)
+      var histStage = Stage()
+      var completeButton = Button("Complete")
+      completeButton.setOnMouseClicked {
+        var option = comboBox.selectionModel.selectedItem.toString()
+        readFilePath.text = option
+        histStage.close()
+      }
+      val histPane = BorderPane()
+      histPane.center = comboBox
+      histPane.right = completeButton
+      histStage.scene = Scene(histPane, 600.0, 400.0)
+      histStage.show()
+    }
 
     readFilePath.textProperty().addListener { _, _, newText ->
       readFilePath.text = newText
@@ -75,6 +117,19 @@ class StreamLogGuiMain : Application() {
           readThread = ReadFileThread(filePath)
           readThread?.start()
         }
+
+        var sql = "select id from `history` where path = ? "
+        var smt: PreparedStatement = conn?.prepareStatement(sql) ?: throw RuntimeException("failed to create")
+        smt.setString(1, filePath)
+        var rs = smt.executeQuery()
+        if (!rs.next()) {
+          var sql2 = "insert into `history`(path) values (?) "
+          var smt2: PreparedStatement = conn?.prepareStatement(sql2) ?: throw RuntimeException("failed to create")
+          smt2.setString(1, filePath)
+          smt2.executeUpdate()
+          smt2.close()
+        }
+        smt.close()
       }
     }
     clearButton.setOnMouseClicked {
@@ -84,6 +139,7 @@ class StreamLogGuiMain : Application() {
       if (readThread != null) {
         readThread?.isReading = false
       }
+      conn?.close()
       Platform.exit()
       System.exit(0)
     }
